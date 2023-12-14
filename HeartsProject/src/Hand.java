@@ -134,7 +134,7 @@ public class Hand {
 
     // picks a card from the player's hand to play
     // given the strategy they have determined and the other cards in the trick
-    private Card pickCard(Round r, Strategy s, Trick thisTrick, int relativePlayerIndex) throws Exception {
+    private Card pickCard(Round r, Strategy s, Trick thisTrick, int relativePlayerIndex) {
         // start with a binary choice: cooperate, or defect
         // could expand into thresholds, there are different extents to cooperate
         // on a scale from not cooperating at all (minimizing personal points taken)
@@ -158,7 +158,8 @@ public class Hand {
         if (relativePlayerIndex == 0) {
             if (r.getTricksLeft() == 13) {
                 if (!myHand[0][2])
-                    throw new Exception("Leader of first trick should have 2Clubs");
+                    // throw new Exception("Leader of first trick should have 2Clubs");
+                    return null;
                 else
                     return new Card(Suit.CLUBS, 2);
             } else if (s == Strategy.AVOID_POINTS) {
@@ -170,7 +171,8 @@ public class Hand {
                 // so
                 int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
                 if (lowestHeartRank == -1)
-                    throw new Exception("Player has no valid moves?");
+                    // throw new Exception("Player has no valid moves?");
+                    return null;
                 return new Card(Suit.HEARTS, lowestHeartRank);
                 // END CORNER CASE
             } else if (s == Strategy.COOPERATE) {
@@ -198,7 +200,8 @@ public class Hand {
                 // so
                 int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
                 if (lowestHeartRank == -1)
-                    throw new Exception("Player has no valid moves?");
+                    // throw new Exception("Player has no valid moves?");
+                    return null;
                 return new Card(Suit.HEARTS, lowestHeartRank);
                 // END CORNER CASE
             } else if (s == Strategy.SHOOT) {
@@ -214,11 +217,13 @@ public class Hand {
                 // so
                 int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
                 if (lowestHeartRank == -1)
-                    throw new Exception("Player has no valid moves?");
+                    // throw new Exception("Player has no valid moves?");
+                    return null;
                 return new Card(Suit.HEARTS, lowestHeartRank);
                 // END CORNER CASE
             } else {
-                throw new Exception("No valid strategy chosen");
+                // throw new Exception("No valid strategy chosen");
+                return null;
             }
         }
 
@@ -301,7 +306,8 @@ public class Hand {
                 }
             }
         } else {
-            throw new Exception("No valid strategy chosen");
+            // throw new Exception("No valid strategy chosen");
+            return null;
         }
 
     }
