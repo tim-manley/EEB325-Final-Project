@@ -91,6 +91,10 @@ public class Round {
         return tricksLeft;
     }
 
+    public void playRound() {
+        while (continueRound()) playTrick();
+    }
+
     public boolean continueRound() {
         return tricksLeft != 0;
     }

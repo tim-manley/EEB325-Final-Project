@@ -1,31 +1,26 @@
-public class Player {
+public class Player implements Comparable<Player> {
     private final Species species;
-    private final int[] placementHistory; // used for recording information across games
-    private int placementIndex;
+    private double totalPlacementSum; // used for recording information across games
 
     // creates a new player, with randomly assigned weights
-    public Player(Species s, int numGames) {
-        placementIndex = 0;
+    public Player(Species s) {
         species = s;
-        placementHistory = new int[numGames];
+        totalPlacementSum = 0;
     }
 
-    public void recordPlacement(int s) throws Exception {
-        if (placementIndex >= placementHistory.length) throw new Exception("Exceeded placement history length");
-        placementHistory[placementIndex] = s;
-        placementIndex++;
+    public void recordPlacement(double s) {
+        totalPlacementSum += s;
     }
 
-    public double getAveragePlacement() {
-        double total = 0.0;
-        for (int i: placementHistory) total += i;
-        return total / placementIndex;
+    public double getTotalPlacementSum() {
+        return totalPlacementSum;
     }
 
     public Species getSpecies() {
         return species;
     }
 
+    // THIS NEEDS TO BE IMPLEMENTED PROPERLY STILL!
     public Strategy getPlayerStrategy() {
         switch (species) {
             case CHEATER:
@@ -38,4 +33,9 @@ public class Player {
                 throw new IllegalStateException("Unexpected value: " + species);
         }
     }
+
+    public int compareTo(Player other) {
+        return (int) Math.signum(totalPlacementSum - other.totalPlacementSum);
+    }
+
 }
