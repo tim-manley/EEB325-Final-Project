@@ -91,6 +91,10 @@ public class Round {
         return tricksLeft;
     }
 
+    public void playRound() {
+        while (continueRound()) playTrick();
+    }
+
     public boolean continueRound() {
         return tricksLeft != 0;
     }
@@ -112,10 +116,10 @@ public class Round {
 
     public static void main(String[] args) {
         Player[] players = new Player[4];
-        players[0] = new Player(Species.CHEATER, 1);
-        players[1] = new Player(Species.CHEATER, 1);
-        players[2] = new Player(Species.THREAT, 1);
-        players[3] = new Player(Species.COOPERATOR, 1);
+        players[0] = new Player(Species.CHEATER);
+        players[1] = new Player(Species.CHEATER);
+        players[2] = new Player(Species.THREAT);
+        players[3] = new Player(Species.COOPERATOR);
         Round round = new Round(players);
         System.out.println(round);
         while (round.continueRound()) {
