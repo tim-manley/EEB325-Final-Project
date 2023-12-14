@@ -161,8 +161,7 @@ public class Hand {
                     throw new Exception("Leader of first trick should have 2Clubs");
                 else
                     return new Card(Suit.CLUBS, 2);
-            }
-            if (s == Strategy.AVOID_POINTS) {
+            } else if (s == Strategy.AVOID_POINTS) {
                 Card c = myLowestCard(heartsBroken);
                 if (c != null)
                     return c;
@@ -174,8 +173,7 @@ public class Hand {
                     throw new Exception("Player has no valid moves?");
                 return new Card(Suit.HEARTS, lowestHeartRank);
                 // END CORNER CASE
-            }
-            if (s == Strategy.COOPERATE) {
+            } else if (s == Strategy.COOPERATE) {
                 if (heartsBroken) {
                     int highestHeartRank = highestRankInSuit(Suit.HEARTS);
                     if (highestHeartRank != -1) {
@@ -203,8 +201,7 @@ public class Hand {
                     throw new Exception("Player has no valid moves?");
                 return new Card(Suit.HEARTS, lowestHeartRank);
                 // END CORNER CASE
-            }
-            if (s == Strategy.SHOOT) {
+            } else if (s == Strategy.SHOOT) {
                 Card c = guaranteedTake(r);
                 if (c != null)
                     return c;
@@ -220,6 +217,8 @@ public class Hand {
                     throw new Exception("Player has no valid moves?");
                 return new Card(Suit.HEARTS, lowestHeartRank);
                 // END CORNER CASE
+            } else {
+                throw new Exception("No valid strategy chosen");
             }
         }
 
@@ -257,7 +256,19 @@ public class Hand {
             if (highestInSuit == -1) {
                 return myLowestCard(false); // plays lowest non-heart
             }
-            // second position
+            // for 2nd, 3rd & 4th, we always play low if no hearts, high if hearts
+            if (thisTrick.getPointsInTrick() == 0) {
+                return new Card(leadingSuit, lowestInSuit);
+            } else {
+                Card winningCard = thisTrick.getTakingCard();
+                int lowestTaking = lowestTaking(leadingSuit, winningCard);
+                // If we're 4th then win with the lowest card possible
+                if (relativePlayerIndex == 3 && lowestTaking != -1) {
+                    return new Card(leadingSuit, lowestTaking);
+                }
+                // Otherwise just play the highest card we can to maximize chance
+                return new Card(leadingSuit, highestInSuit);
+            }
 
         } else if (s == Strategy.COOPERATE) {
             int highestInSuit = highestRankInSuit(leadingSuit);
@@ -268,9 +279,7 @@ public class Hand {
                 // then play a power card
                 if (perceivedRiskOfShooting(r, thisTrick) == 0) {
                     return powerCard(r);
-                }
-                // Else play lowest non-heart/QS to save high cards
-                else {
+                } else { // Else play lowest non-heart/QS to save high cards
                     return myLowestCard(false);
                 }
             }
@@ -291,6 +300,8 @@ public class Hand {
                     return new Card(leadingSuit, lowestInSuit);
                 }
             }
+        } else {
+            throw new Exception("No valid strategy chosen");
         }
 
     }
@@ -304,6 +315,19 @@ public class Hand {
     //
     //
     // }
+
+    private int lowestTaking(Suit s, Card takingCard) {
+        int suitIndex = s.getIndex();
+        for (int i = 2; i < 15; i++) {
+            if (myHand[suitIndex][i]) {
+                Card thisCard = new Card(suitIndex, i);
+                if (thisCard.compareTo(takingCard) > 1) {
+                    return i;
+                }
+            }
+        }
+        return -1; // no taking cards
+    }
 
     // returns the rank of the highest card in my hand, in this suit
     private int highestRankInSuit(Suit s) {
