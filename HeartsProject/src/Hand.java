@@ -21,7 +21,9 @@ public class Hand {
 
     public Card playCard(Round r, Trick thisTrick, int relativePlayerIndex) {
         // pick and return a card from the lead suit, informed by a strategy [TBD]
-        Strategy s = player.getPlayerStrategy(); // need to write, just returns AVOID_POINTS for now
+        double shootingRisk = perceivedRiskOfShooting(r, thisTrick);
+        Strategy s = player.getPlayerStrategy(r, myIndex, shootingRisk); // need to write, just returns AVOID_POINTS for
+                                                                         // now
         return pickCard(r, s, thisTrick, relativePlayerIndex);
     }
 
