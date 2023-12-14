@@ -1,3 +1,6 @@
+import sun.jvm.hotspot.gc.z.ZHeap;
+import sun.jvm.hotspot.ui.tree.SimpleTreeGroupNode;
+
 import java.util.*;
 
 public class Hand {
@@ -12,14 +15,14 @@ public class Hand {
         myIndex = i;
         player = p;
         isFirstLeader = false;
-        myHand = new boolean[4][14]; // one extra entry per row, for 1-based indexing :)
+        myHand = new boolean[4][15]; // one extra entry per row, for 1-based indexing :)
         myCards = new ArrayList<>(); // MAKE SURE TO MODIFY ALONG WITH MYHAND WHEN REMOVING
     }
 
-    public Card playCard(Round r, Trick thisTrick) {
+    public Card playCard(Round r, Trick thisTrick, int relativePlayerIndex) {
         // pick and return a card from the lead suit, informed by a strategy [TBD]
         Strategy s = player.getPlayerStrategy(); // need to write, just returns AVOID_POINTS for now
-        return pickCard(r, s, thisTrick);
+        return pickCard(r, s, thisTrick, relativePlayerIndex);
     }
 
     // strategy is computed per species
@@ -27,7 +30,7 @@ public class Hand {
     // there is a predetermined (or probabilistic, if desired) card that is played
     private Strategy pickStrategy(Round r, Trick thisTrick) {
         double perceivedRiskOfShooting = perceivedRiskOfShooting(r, thisTrick);
-        double perceivedCooperationCost = perceivedCooperationCost(r, thisTrick);
+//        double perceivedCooperationCost = perceivedCooperationCost(r, thisTrick);
         return Strategy.AVOID_POINTS; // filler
     }
 
@@ -126,7 +129,7 @@ public class Hand {
 
     // picks a card from the player's hand to play
     // given the strategy they have determined and the other cards in the trick
-    private Card pickCard(Round r, Strategy s, Trick thisTrick) throws Exception {
+    private Card pickCard(Round r, Strategy s, Trick thisTrick, int relativePlayerIndex) throws Exception {
         // start with a binary choice: cooperate, or defect
         // could expand into thresholds, there are different extents to cooperate
         // on a scale from not cooperating at all (minimizing personal points taken)
@@ -142,7 +145,7 @@ public class Hand {
         boolean heartsBroken = r.areHeartsBroken();
 
         // leads new trick
-        if (thisTrick.getLeaderIndex() == myIndex) {
+        if (relativePlayerIndex == 0) {
             if (r.getTricksLeft() == 13) {
                 if (!myHand[0][2]) throw new Exception("Leader of first trick should have 2Clubs");
                 else return new Card(Suit.CLUBS, 2);
@@ -150,30 +153,89 @@ public class Hand {
             if (s == Strategy.AVOID_POINTS) {
                 Card c = myLowestCard(heartsBroken);
                 if (c != null) return c;
-                // c is only null if hearts haven't been broken and this player has to do so
-                c = myLowestInSuit(3);
-                if (c == null) throw new Exception("Player has no valid moves?");
-                return c;
+                // CORNER CASE:
+                // c is only null if hearts haven't been broken and this player is forced to do so
+                int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
+                if (lowestHeartRank == -1) throw new Exception("Player has no valid moves?");
+                return new Card(Suit.HEARTS, lowestHeartRank);
+                // END CORNER CASE
             }
-//            if (s == Strategy.)
+            if (s == Strategy.COOPERATE) {
+                if (heartsBroken) {
+                    int highestHeartRank = highestRankInSuit(Suit.HEARTS);
+                    if (highestHeartRank != -1) {
+                        // plays a high heart to #stoptheshoot if certainly can
+                        if (!areUnplayedCardsAbove(Suit.HEARTS, highestHeartRank, r)) {
+                            return new Card(Suit.HEARTS, highestHeartRank);
+                        }
+                    }
+                    // plays a low heart to bait out high hearts/allow someone else to take
+                    int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
+                    if (lowestHeartRank != -1) return new Card(Suit.HEARTS, lowestHeartRank);
+                }
+                // if we've gotten to here, either hearts aren't broken or we have no hearts
+                // plays lowest card because there usually isn't a clear direction as the leader here
+                Card c = myLowestCard(heartsBroken);
+                if (c != null) return c;
+                // CORNER CASE:
+                // c is only null if hearts haven't been broken and this player is forced to do so
+                int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
+                if (lowestHeartRank == -1) throw new Exception("Player has no valid moves?");
+                return new Card(Suit.HEARTS, lowestHeartRank);
+                // END CORNER CASE
+            }
+            if (s == Strategy.SHOOT) {
+                Card c = guaranteedTake(r);
+                if (c != null) return c;
+                // no guaranteed card to take, so play some high card
+                c = myHighestCard(heartsBroken);
+                if (c != null) return c;
+                // CORNER CASE:
+                // c is only null if hearts haven't been broken and this player is forced to do so
+                int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
+                if (lowestHeartRank == -1) throw new Exception("Player has no valid moves?");
+                return new Card(Suit.HEARTS, lowestHeartRank);
+                // END CORNER CASE
+            }
         }
 
-        if (thisTrick[0] == null) {
-            for (Card c: myCards) {
-                if ((c.getSuit() == Suit.HEARTS) && !r.areHeartsBroken()) {
-                    return c;
-                }
+        // We are not leading the suit
+        Suit leadingSuit = thisTrick.getPlayedCards()[0].getSuit();
+        int highestRank = thisTrick.getTakingCard().getRank();
+
+        if (s == Strategy.AVOID_POINTS) {
+            int highestInSuit = highestRankInSuit(leadingSuit);
+            int lowestInSuit = lowestRankInSuit(leadingSuit);
+            int highestNonTaking = highestRankInSuitUnderRank(leadingSuit, highestRank);
+            // are we out of the suit that was led?
+            if (highestInSuit == -1) {
+                return powerCard(r);
+            }
+            // second or third position
+            if (relativePlayerIndex == 1 || relativePlayerIndex == 2) {
+                if (highestNonTaking > -1) return new Card(leadingSuit, highestNonTaking);
+                return new Card(leadingSuit, lowestInSuit);
+            }
+            // fourth position
+            else {
+                if (thisTrick.getPointsInTrick() == 0) return new Card(leadingSuit, highestInSuit);
+                if (highestNonTaking > -1) return new Card(leadingSuit, highestNonTaking);
+                return new Card(leadingSuit, highestInSuit);
             }
         }
-        assert thisTrick[0] != null; // duh but ok
-        Suit leadSuit = thisTrick[0].getSuit();
-        for (Card c: myCards) {
-            if (c.getSuit() == leadSuit) {
-                return c;
+        else if (s == Strategy.SHOOT) {
+            int highestInSuit = highestRankInSuit(leadingSuit);
+            int lowestInSuit = lowestRankInSuit(leadingSuit);
+            int highestNonTaking = highestRankInSuitUnderRank(leadingSuit, highestRank);
+            // are we out of the suit that was led?
+            if (highestInSuit == -1) {
+                return myLowestCard(false); // plays lowest non-heart
             }
+            // second position
+
+
         }
-        // returns a random card if doesn't have something in suit, for now.
-        return myCards.get(0);
+
     }
 
 //    public Card highest_non_taking(leadingSuit, myCards) {
@@ -189,12 +251,108 @@ public class Hand {
     // returns the rank of the highest card in my hand, in this suit
     private int highestRankInSuit(Suit s) {
         int suitIndex = s.getIndex();
-        for (int i = 13; i > 0; i--) {
+        for (int i = 14; i > 1; i--) {
             if (myHand[suitIndex][i]) return i;
         }
         return -1;
     }
 
+    // returns the rank of the lowest card in my hand, in this suit
+    private int lowestRankInSuit(Suit s) {
+        int suitIndex = s.getIndex();
+        for (int i = 2; i < 15; i++) {
+            if (myHand[suitIndex][i]) return i;
+        }
+        return -1;
+    }
+
+    // returns the highest rank of a card in the suit, under a given card
+    private int highestRankInSuitUnderRank(Suit s, int rank) {
+        int suitIndex = s.getIndex();
+        for (int i = rank-1; i > 1; i--) {
+            if (myHand[suitIndex][i]) return i;
+        }
+        return -1;
+    }
+
+
+    // returns lowest card in hand that is playable
+    private Card myLowestCard(boolean includeHearts) {
+        int maxSuit = 3;
+        if (includeHearts) maxSuit = 4;
+        for (int i = 2; i < 15; i++) {
+            for (int j = 0; j < maxSuit; j++)
+                if (myHand[i][j]) return new Card(i, j);
+        }
+        return null;
+    }
+
+    // returns highest card in hand that is playable
+    private Card myHighestCard(boolean isHeartsBroken) {
+        int maxSuit = 3;
+        if (isHeartsBroken) maxSuit = 4;
+        for (int i = 14; i > 1; i--) {
+            for (int j = maxSuit; j >= 0; j--)
+                if (myHand[i][j]) return new Card(i, j);
+        }
+        return null;
+    }
+
+    // tells whether there are unplayed cards above the current one in this round
+    private boolean areUnplayedCardsAbove(Suit s, int rank, Round r) {
+        int suitIndex = s.getIndex();
+        boolean[][] playedCards = r.getPlayedCards();
+        for (int i = rank + 1; i < 15; i++) {
+            if (!playedCards[suitIndex][i]) return false;
+        }
+        return true;
+    }
+
+    // QS -> AS -> KS -> AH -> KH -> QH -> JH -> highest rank card
+    private Card powerCard(Round r) {
+        boolean[][] playedCards = r.getPlayedCards();
+        // is only concerned about dumping high spades if queen is still out
+        if (!playedCards[2][12]) {
+            if (myHand[2][12]) return new Card(Suit.SPADES, 12);
+            if (myHand[2][13]) return new Card(Suit.SPADES, 13);
+            if (myHand[2][14]) return new Card(Suit.SPADES, 14);
+        }
+        if (myHand[3][14]) return new Card(Suit.HEARTS, 14);
+        if (myHand[3][13]) return new Card(Suit.HEARTS, 13);
+        if (myHand[3][12]) return new Card(Suit.HEARTS, 12);
+        if (myHand[3][11]) return new Card(Suit.HEARTS, 11);
+        return myHighestCard(true);
+    }
+
+    // returns a card that can guarantee taking the trick, otherwise null
+    private Card guaranteedTake(Round r) {
+        int maxCardsAbove = 13;
+        for (int i = 14; i > 1; i--) {
+            for (int s = 0; s < 4; s++) {
+                if (myHand[s][i]) {
+                    if (!areUnplayedCardsAbove(correspondingSuit(s), i, r)) {
+                        return new Card(s, i);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private Suit correspondingSuit(int index) {
+        switch (index) {
+            case 0:
+                return Suit.CLUBS;
+            case 1:
+                return Suit.DIAMONDS;
+            case 2:
+                return Suit.SPADES;
+            default:
+                return Suit.HEARTS;
+        }
+    }
+
+    // deals the player a card
     public void giveCard(Card c) {
         myHand[c.getSuit().getIndex()][c.getRank()] = true;
         myCards.add(c);
@@ -202,24 +360,6 @@ public class Hand {
 
     public boolean isFirstLeader() {
         return isFirstLeader;
-    }
-
-    // returns lowest card in a suit designated by suitIndex
-    private Card myLowestInSuit(int suitIndex) {
-        for (int i = 1; i < 14; i++)
-            if (myHand[suitIndex][i]) return new Card(suitIndex, i);
-        return null;
-    }
-
-    // returns lowest card in hand that is playable
-    private Card myLowestCard(boolean isHeartsBroken) {
-        int maxSuit = 3;
-        if (isHeartsBroken) maxSuit = 4;
-        for (int i = 1; i < 14; i++) {
-            for (int j = 0; j < maxSuit; j++)
-                if (myHand[i][j]) return new Card(i, j);
-        }
-        return null;
     }
 
 }

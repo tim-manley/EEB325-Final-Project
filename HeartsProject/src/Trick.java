@@ -49,4 +49,8 @@ public class Trick {
         return takerIndex;
     }
 
+    public Card getTakingCard() {
+        return takingCard;
+    }
+
 }

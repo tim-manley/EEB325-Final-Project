@@ -14,7 +14,7 @@ public class Round {
 
     // constructor
     public Round(Player[] players) {
-        playedCards = new boolean[4][14]; // one extra entry per row, for 1-based indexing :)
+        playedCards = new boolean[4][15]; // one extra entry per row, for 1-based indexing :)
         heartsBroken = false;
         tricksLeft = 13;
         // instantiates four player hands [TBD]
@@ -51,7 +51,7 @@ public class Round {
             // maybe add more to evaluate on, but in passing the Round we should be able to use any
             // getter method to retrieve other state info
             int relativePlayerIndex = (leader + i) % 4;
-            Card c = playerHands[relativePlayerIndex].playCard(this, thisTrick);
+            Card c = playerHands[relativePlayerIndex].playCard(this, thisTrick, relativePlayerIndex);
             thisTrick.playCard(c, relativePlayerIndex);
             playedCards[c.getSuit().getIndex()][c.getRank()] = true;
         }
@@ -112,10 +112,10 @@ public class Round {
 
     public static void main(String[] args) {
         Player[] players = new Player[4];
-        players[0] = new Player(Species.CHEATER);
-        players[1] = new Player(Species.CHEATER);
-        players[2] = new Player(Species.THREAT);
-        players[3] = new Player(Species.COOPERATOR);
+        players[0] = new Player(Species.CHEATER, 1);
+        players[1] = new Player(Species.CHEATER, 1);
+        players[2] = new Player(Species.THREAT, 1);
+        players[3] = new Player(Species.COOPERATOR, 1);
         Round round = new Round(players);
         System.out.println(round);
         while (round.continueRound()) {
