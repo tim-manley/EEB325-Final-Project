@@ -1,4 +1,5 @@
 public enum Strategy {
     COOPERATE,
-    DEFECT
+    AVOID_POINTS,
+    SHOOT
 }

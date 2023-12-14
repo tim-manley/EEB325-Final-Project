@@ -12,6 +12,30 @@ public class Card implements Comparable<Card> {
         else pointValue = 0;
     }
 
+    // constructor
+    public Card(int suitIndex, int rank) {
+        this.suit = getSuit(suitIndex);
+        this.rank = rank;
+        if (suit == Suit.HEARTS) pointValue = 1;                        // each heart is one point
+        else if (suit == Suit.SPADES && rank == 12) pointValue = 13;    // queen of spades
+        else pointValue = 0;
+    }
+
+    private Suit getSuit(int index) {
+        switch (index) {
+            case 0:
+                return Suit.CLUBS;
+            case 1:
+                return Suit.DIAMONDS;
+            case 2:
+                return Suit.SPADES;
+            case 3:
+                return Suit.HEARTS;
+            default:
+                throw new IllegalStateException("Unexpected index: " + index);
+        }
+    }
+
     // getters
     public Suit getSuit() {
         return this.suit;

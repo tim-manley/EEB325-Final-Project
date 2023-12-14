@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.List;;
 
 // one round of hearts, composed of 13 tricks
 public class Round {
@@ -10,6 +10,7 @@ public class Round {
     private final int[] pointsTaken;
     private int leader;
     private boolean heartsBroken;
+
 
     // constructor
     public Round(Player[] players) {
@@ -43,32 +44,23 @@ public class Round {
                 if (playerHands[i].isFirstLeader()) leader = i;   // isFirstLeader is set when 2 of Clubs is dealt
             }
         }
-
-        Card[] thisTrick = new Card[4];
-        int pointsInTrick = 0;
-        Card takingCard;
-        int taker = leader;
+        Trick thisTrick = new Trick(leader);
 
         // each remaining player plays their turn
         for (int i = 0; i < 4; i++) {
             // maybe add more to evaluate on, but in passing the Round we should be able to use any
             // getter method to retrieve other state info
-            Card c = playerHands[(leader + i) % 4].playCard(this, thisTrick);
-            thisTrick[i] = c;
-            pointsInTrick += c.getPointValue();
+            int relativePlayerIndex = (leader + i) % 4;
+            Card c = playerHands[relativePlayerIndex].playCard(this, thisTrick);
+            thisTrick.playCard(c, relativePlayerIndex);
             playedCards[c.getSuit().getIndex()][c.getRank()] = true;
-
-            // decides if this player beats the existing high card
-            if (i == 0) takingCard = c;
-            else if (thisTrick[i].compareTo(takingCard) > 0) {
-                taker = (leader + i) % 4;
-                takingCard = thisTrick[i];
-            }
         }
 
         // gives the trick-taker their points, and assigns them as next leader
-        pointsTaken[taker] += pointsInTrick; // does this += notation work? I'm rusty, I hope so
-        if (pointsInTrick > 0) heartsBroken = true;
+        int total = thisTrick.getPointsInTrick();
+        int taker = thisTrick.getTakerIndex();
+        pointsTaken[taker] += total; // Does this += notation work with arrays? I'm rusty, I hope so
+        if (total > 0) heartsBroken = true;
         leader = taker;
         tricksLeft--;
     }
@@ -95,6 +87,10 @@ public class Round {
         return leader;
     }
 
+    public int getTricksLeft() {
+        return tricksLeft;
+    }
+
     public boolean continueRound() {
         return tricksLeft != 0;
     }
@@ -115,7 +111,12 @@ public class Round {
     }
 
     public static void main(String[] args) {
-        Round round = new Round();
+        Player[] players = new Player[4];
+        players[0] = new Player(Species.CHEATER);
+        players[1] = new Player(Species.CHEATER);
+        players[2] = new Player(Species.THREAT);
+        players[3] = new Player(Species.COOPERATOR);
+        Round round = new Round(players);
         System.out.println(round);
         while (round.continueRound()) {
             round.playTrick();

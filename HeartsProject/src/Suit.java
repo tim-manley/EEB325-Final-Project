@@ -13,5 +13,4 @@ public enum Suit {
     public int getIndex() {
         return index;
     }
-
 }
