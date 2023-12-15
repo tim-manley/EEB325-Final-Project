@@ -1,13 +1,9 @@
-import sun.jvm.hotspot.gc.z.ZHeap;
-import sun.jvm.hotspot.ui.tree.SimpleTreeGroupNode;
-
 import java.util.*;
 
 public class Hand {
     private Player player;
     private int myIndex;
     private boolean[][] myHand; // true if I have the card (suit, index), false otherwise
-    private List<Card> myCards; // to iterate more effectively over in certain instances
     private boolean isFirstLeader;
 
     // constructor
@@ -16,23 +12,19 @@ public class Hand {
         player = p;
         isFirstLeader = false;
         myHand = new boolean[4][15]; // one extra entry per row, for 1-based indexing :)
-        myCards = new ArrayList<>(); // MAKE SURE TO MODIFY ALONG WITH MYHAND WHEN REMOVING
     }
 
     public Card playCard(Round r, Trick thisTrick, int relativePlayerIndex) {
         // pick and return a card from the lead suit, informed by a strategy [TBD]
         double perceivedRiskOfShooting = perceivedRiskOfShooting(r, thisTrick);
         Strategy s = player.getPlayerStrategy(r, myIndex, perceivedRiskOfShooting);
-        return pickCard(r, s, thisTrick, relativePlayerIndex);
-    }
 
-    // strategy is computed per species
-    // such that for a given hand and a given strategy,
-    // there is a predetermined (or probabilistic, if desired) card that is played
-    private Strategy pickStrategy(Round r, Trick thisTrick) {
-        double perceivedRiskOfShooting = perceivedRiskOfShooting(r, thisTrick);
-        // double perceivedCooperationCost = perceivedCooperationCost(r, thisTrick);
-        return Strategy.AVOID_POINTS; // filler
+        Card c = pickCard(r, s, thisTrick, relativePlayerIndex);
+        assert (c != null);
+        assert (c.getSuit() != null);
+        assert (c.getSuit().getIndex() > 0);
+        myHand[c.getSuit().getIndex()][c.getRank()] = false;
+        return c;
     }
 
     // returns a number corresponding to a player's perception of risk, based on
@@ -260,7 +252,9 @@ public class Hand {
             int highestNonTaking = highestRankInSuitUnderRank(leadingSuit, highestRank);
             // are we out of the suit that was led?
             if (highestInSuit == -1) {
-                return myLowestCard(false); // plays lowest non-heart
+                Card c = myLowestCard(false); // plays lowest non-heart
+                if (c != null) return c;
+                else return myLowestCard(true);
             }
             // for 2nd, 3rd & 4th, we always play low if no hearts, high if hearts
             if (thisTrick.getPointsInTrick() == 0) {
@@ -373,21 +367,21 @@ public class Hand {
             maxSuit = 4;
         for (int i = 2; i < 15; i++) {
             for (int j = 0; j < maxSuit; j++)
-                if (myHand[i][j])
-                    return new Card(i, j);
+                if (myHand[j][i])
+                    return new Card(j, i);
         }
         return null;
     }
 
     // returns highest card in hand that is playable
     private Card myHighestCard(boolean isHeartsBroken) {
-        int maxSuit = 3;
+        int maxSuit = 2;
         if (isHeartsBroken)
-            maxSuit = 4;
+            maxSuit = 3;
         for (int i = 14; i > 1; i--) {
             for (int j = maxSuit; j >= 0; j--)
-                if (myHand[i][j])
-                    return new Card(i, j);
+                if (myHand[j][i])
+                    return new Card(j, i);
         }
         return null;
     }
@@ -456,8 +450,8 @@ public class Hand {
 
     // deals the player a card
     public void giveCard(Card c) {
+        if (c.getSuit() == Suit.CLUBS && c.getRank() == 2) isFirstLeader = true;
         myHand[c.getSuit().getIndex()][c.getRank()] = true;
-        myCards.add(c);
     }
 
     public boolean isFirstLeader() {

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class Simulator {
@@ -32,7 +33,7 @@ public class Simulator {
 
     private void playGeneration() {
         Collections.shuffle(players);
-        int numGames = players.size();
+        int numGames = players.size() / 4;
         for (int i = 0; i < numGames; i++) {
             Player[] thisGame = new Player[4];
             for (int j = 0; j < 4; j++) {
@@ -98,7 +99,7 @@ public class Simulator {
     public static void main(String[] args) {
         int[] numOfSpecies = {50, 25, 25};
         Simulator s = new Simulator(100, numOfSpecies, 50);
-
+        System.out.println(Arrays.deepToString(s.frequenciesOverTime));
     }
 
 }

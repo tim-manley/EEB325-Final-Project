@@ -20,27 +20,23 @@ public class Player implements Comparable<Player> {
         return species;
     }
 
-    // THIS NEEDS TO BE IMPLEMENTED PROPERLY STILL!
     public Strategy getPlayerStrategy(Round r, int myIndex, double shootingRisk) {
         switch (species) {
             case CHEATER:
                 return Strategy.AVOID_POINTS;
             case THREAT:
-                // If all the points are still mine, I can still shoot
-                if (r.getTotalPointsTaken() == r.getPointsTaken()[myIndex]) {
+            // If all the points are still mine, I can still shoot
+                if (r.getTotalPointsTaken() == r.getPointsTaken()[myIndex])
                     return Strategy.SHOOT;
-                } else {
-                    return Strategy.AVOID_POINTS; // Abandon shooting if someone takes hearts
-                }
+                return Strategy.AVOID_POINTS; // Abandon shooting if someone takes hearts
             case COOPERATOR:
                 double threshold = 0.2;
-                if (shootingRisk < threshold) {
+                if (shootingRisk < threshold)
                     return Strategy.AVOID_POINTS; // No need to cooperate if no perceived risk
-                } else {
-                    return Strategy.COOPERATE;
-                }
+                return Strategy.COOPERATE;
             default:
-                throw new IllegalStateException("Unexpected value: " + species);
+                System.out.println("ERROR!");
+                return null;
         }
     }
 

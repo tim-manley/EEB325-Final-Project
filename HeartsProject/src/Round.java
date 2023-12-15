@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;;
 
@@ -31,7 +32,7 @@ public class Round {
             }
         }
         Collections.shuffle(deck);
-        for (int i = 0; i < 64; i++) {
+        for (int i = 0; i < 52; i++) {
             playerHands[i % 4].giveCard(deck.get(i));
         }
         // at this point, optionally a passing phase -- we are omitting for now, for simplicity
@@ -50,9 +51,9 @@ public class Round {
         for (int i = 0; i < 4; i++) {
             // maybe add more to evaluate on, but in passing the Round we should be able to use any
             // getter method to retrieve other state info
-            int relativePlayerIndex = (leader + i) % 4;
-            Card c = playerHands[relativePlayerIndex].playCard(this, thisTrick, relativePlayerIndex);
-            thisTrick.playCard(c, relativePlayerIndex);
+            int absolutePlayerIndex = (leader + i) % 4;
+            Card c = playerHands[absolutePlayerIndex].playCard(this, thisTrick, i);
+            thisTrick.playCard(c, i);
             playedCards[c.getSuit().getIndex()][c.getRank()] = true;
         }
 
