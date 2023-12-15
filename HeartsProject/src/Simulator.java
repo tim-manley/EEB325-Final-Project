@@ -1,3 +1,8 @@
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -97,7 +102,7 @@ public class Simulator {
     }
 
     public static void main(String[] args) {
-        int[] numOfSpecies = {50, 25, 25};
+        int[] numOfSpecies = {Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])};
         Simulator s = new Simulator(100, numOfSpecies, 50);
         System.out.println(Arrays.deepToString(s.frequenciesOverTime));
     }
