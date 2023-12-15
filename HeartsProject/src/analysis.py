@@ -63,9 +63,12 @@ def plot_data(output_ids):
 
             ax = axes[i]
 
-            ax.plot(time_data, cheat_data, label="cheater")
-            ax.plot(time_data, coop_data, label="cooperator")
-            ax.plot(time_data, threat_data, label="threat")
+            if (cheat_data[0] != 0):
+                ax.plot(time_data, cheat_data, label="cheater")
+            if (coop_data[0] != 0):
+                ax.plot(time_data, coop_data, label="cooperator")
+            if (threat_data[0] != 0):
+                ax.plot(time_data, threat_data, label="threat")
             ax.set_xlabel("Generation #")
             ax.set_ylabel("Population size")
             ax.set_title(f"Trial {output_id}")
