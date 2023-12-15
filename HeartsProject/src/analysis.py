@@ -7,9 +7,9 @@ java_file = "Simulator.java"
 compile_process = subprocess.run(['javac', java_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
-def simulate(output_id, threat, coop, cheat):
+def simulate(output_id, threat, coop, cheat, coop_threshold):
     games_per_gen = 10
-    arguments = [str(games_per_gen), str(threat), str(coop), str(cheat)]
+    arguments = [str(games_per_gen), str(threat), str(coop), str(cheat), str(coop_threshold)]
     output_str = f"output_{output_id}.txt"
     with open(output_str, 'w') as output_file:
         run_process = subprocess.run(['java', java_file[:-5]] + arguments, stdout=output_file, stderr=subprocess.PIPE)
@@ -19,10 +19,10 @@ def simulate(output_id, threat, coop, cheat):
 
 def plot_data(output_ids):
 
-    num_rows = len(output_ids) + 1 // 2
-    num_cols = 2
+    num_rows = len(output_ids) + 1 // 3
+    num_cols = 3
 
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 4 * num_rows))
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 10))
     axes = axes.flatten()
 
     for i, output_id in enumerate(output_ids):
@@ -78,10 +78,10 @@ def plot_data(output_ids):
 # Check if compilation was successful
 if compile_process.returncode == 0:
     # Run the compiled Java program and redirect output to 'output.txt'
-    simulate(1, 50, 50, 50)
-    simulate(2, 25, 25, 100)
+    for i in range(1, 10):
+        simulate(i / 10.0, 33, 33, 34, i / 10.0)
 
-    plot_data([1, 2])
+    plot_data([i / 10.0 for i in range(1, 10)])
 else:
     # If compilation fails, write the error to 'output.txt'
     with open('output.txt', 'w') as f:

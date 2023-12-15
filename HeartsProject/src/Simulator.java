@@ -9,9 +9,11 @@ public class Simulator {
     private final int numPlayers;
     private final int[][] frequenciesOverTime;
     private int currentRound;
+    private double cooperateThreshold;
 
-    public Simulator(int numParticipants, int[] numOfSpecies, int n) {
-        int NUM_GENS = 100;
+    public Simulator(int numParticipants, int[] numOfSpecies, int n, double c) {
+        cooperateThreshold = c;
+        int NUM_GENS = 200;
         currentRound = 0;
         frequenciesOverTime = new int[3][NUM_GENS];
         numPlayers = numOfSpecies[0] + numOfSpecies[1] + numOfSpecies[2];
@@ -24,11 +26,11 @@ public class Simulator {
         players = new ArrayList<Player>();
 
         for (int i = 0; i < numOfSpecies[0]; i++)
-            players.add(new Player(Species.THREAT));
+            players.add(new Player(Species.THREAT, 0));
         for (int i = 0; i < numOfSpecies[1]; i++)
-            players.add(new Player(Species.COOPERATOR));
+            players.add(new Player(Species.COOPERATOR, cooperateThreshold));
         for (int i = 0; i < numOfSpecies[2]; i++)
-            players.add(new Player(Species.CHEATER));
+            players.add(new Player(Species.CHEATER, 0));
 
         for (int i = 0; i < NUM_GENS; i++) {
             recordFrequencies();
@@ -71,7 +73,7 @@ public class Simulator {
         Collections.sort(players);
         // overwrites these players with new players
         for (int i = 0; i < numPlayers / 4; i++)
-            players.set(i + (3 * numPlayers / 4), new Player(players.get(i).getSpecies()));
+            players.set(i + (3 * numPlayers / 4), new Player(players.get(i).getSpecies(), cooperateThreshold));
     }
 
     // records the current population frequency data
@@ -132,7 +134,7 @@ public class Simulator {
 
     public static void main(String[] args) {
         int[] numOfSpecies = { Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]) };
-        Simulator s = new Simulator(100, numOfSpecies, Integer.parseInt(args[0]));
+        Simulator s = new Simulator(100, numOfSpecies, Integer.parseInt(args[0]), Double.parseDouble(args[4]));
         System.out.println(Arrays.deepToString(s.frequenciesOverTime));
     }
 
