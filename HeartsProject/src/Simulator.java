@@ -15,14 +15,18 @@ public class Simulator {
         numPlayers = numParticipants;
         numRounds = n;
         int totalIndividuals = 0;
-        for (int i: numOfSpecies) totalIndividuals += i;
-        assert(totalIndividuals == numParticipants);
+        for (int i : numOfSpecies)
+            totalIndividuals += i;
+        assert (totalIndividuals == numParticipants);
 
         players = new ArrayList<Player>();
 
-        for (int i = 0; i < numOfSpecies[0]; i++) players.add(new Player(Species.THREAT));
-        for (int i = 0; i < numOfSpecies[1]; i++) players.add(new Player(Species.COOPERATOR));
-        for (int i = 0; i < numOfSpecies[2]; i++) players.add(new Player(Species.CHEATER));
+        for (int i = 0; i < numOfSpecies[0]; i++)
+            players.add(new Player(Species.THREAT));
+        for (int i = 0; i < numOfSpecies[1]; i++)
+            players.add(new Player(Species.COOPERATOR));
+        for (int i = 0; i < numOfSpecies[2]; i++)
+            players.add(new Player(Species.CHEATER));
 
         for (int i = 0; i < n; i++) {
             recordFrequencies();
@@ -37,7 +41,7 @@ public class Simulator {
         for (int i = 0; i < numGames; i++) {
             Player[] thisGame = new Player[4];
             for (int j = 0; j < 4; j++) {
-                thisGame[j] = players.get(i*4 + j);
+                thisGame[j] = players.get(i * 4 + j);
             }
             playGame(thisGame);
         }
@@ -50,16 +54,20 @@ public class Simulator {
     private void stepGeneration() {
         Collections.sort(players);
         // overwrites these players with new players
-        for (int i = 0; i < numPlayers / 4; i++) players.set(i + 75, new Player(players.get(i).getSpecies()));
+        for (int i = 0; i < numPlayers / 4; i++)
+            players.set(i + 75, new Player(players.get(i).getSpecies()));
     }
 
     // records the current population frequency data
     private void recordFrequencies() {
-        for (int i = 0; i < numPlayers; i++)  {
+        for (int i = 0; i < numPlayers; i++) {
             Species s = players.get(i).getSpecies();
-            if (s == Species.THREAT) frequenciesOverTime[0][currentRound] = frequenciesOverTime[0][currentRound] + 1;
-            else if (s == Species.COOPERATOR) frequenciesOverTime[1][currentRound] = frequenciesOverTime[1][currentRound] + 1;
-            else if (s == Species.CHEATER) frequenciesOverTime[2][currentRound] = frequenciesOverTime[2][currentRound] + 1;
+            if (s == Species.THREAT)
+                frequenciesOverTime[0][currentRound] = frequenciesOverTime[0][currentRound] + 1;
+            else if (s == Species.COOPERATOR)
+                frequenciesOverTime[1][currentRound] = frequenciesOverTime[1][currentRound] + 1;
+            else if (s == Species.CHEATER)
+                frequenciesOverTime[2][currentRound] = frequenciesOverTime[2][currentRound] + 1;
         }
     }
 
@@ -69,19 +77,23 @@ public class Simulator {
             Round r = new Round(players);
             r.playRound();
             int[] results = r.getPointsTaken();
-            for (int i = 0; i < 4; i++) scores[i] += results[i];
+            for (int i = 0; i < 4; i++)
+                scores[i] += results[i];
         }
         tabulate(scores, players);
     }
 
-    // takes results from one game, then adds the [0-3] ranked results to each personal player's history
+    // takes results from one game, then adds the [0-3] ranked results to each
+    // personal player's history
     // (lower scores are better)
     private void tabulate(int[] scores, Player[] players) {
         double[] tallies = new double[4];
         for (int i = 0; i < 3; i++) {
             for (int j = i + 1; j < 4; j++) {
-                if (scores[i] > scores[j]) tallies[i]++;
-                else if (scores[j] > scores[i]) tallies[j]++;
+                if (scores[i] > scores[j])
+                    tallies[i]++;
+                else if (scores[j] > scores[i])
+                    tallies[j]++;
                 // shared penalty for tying
                 else {
                     tallies[i] += 0.5;
@@ -89,7 +101,8 @@ public class Simulator {
                 }
             }
         }
-        for (int i = 0; i < 4; i++) players[i].recordPlacement(tallies[i]);
+        for (int i = 0; i < 4; i++)
+            players[i].recordPlacement(tallies[i]);
     }
 
     public int[][] getFrequenciesOverTime() {
@@ -97,8 +110,8 @@ public class Simulator {
     }
 
     public static void main(String[] args) {
-        int[] numOfSpecies = {50, 25, 25};
-        Simulator s = new Simulator(100, numOfSpecies, 50);
+        int[] numOfSpecies = { Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]) };
+        Simulator s = new Simulator(100, numOfSpecies, Integer.parseInt(args[0]));
         System.out.println(Arrays.deepToString(s.frequenciesOverTime));
     }
 

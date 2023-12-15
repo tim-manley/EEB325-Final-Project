@@ -1,5 +1,28 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import subprocess
+
+java_file = "Simulator.java"
+num_gens = 50
+init_threat = 50
+init_coop = 49
+init_cheat = 1
+arguments = [str(num_gens), str(init_threat), str(init_coop), str(init_cheat)]
+
+compile_process = subprocess.run(['javac', java_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+# Check if compilation was successful
+if compile_process.returncode == 0:
+    # Run the compiled Java program and redirect output to 'output.txt'
+    with open('output.txt', 'w') as output_file:
+        run_process = subprocess.run(['java', java_file[:-5]] + arguments, stdout=output_file, stderr=subprocess.PIPE)
+        if run_process.returncode != 0:
+            output_file.write(f"Error running the Java program:\n{run_process.stderr.decode()}")
+        output_file.close()
+else:
+    # If compilation fails, write the error to 'output.txt'
+    with open('output.txt', 'w') as output_file:
+        output_file.write(f"Compilation Error:\n{compile_process.stderr.decode()}")
 
 with open("output.txt") as f:
     data = f.readline()
