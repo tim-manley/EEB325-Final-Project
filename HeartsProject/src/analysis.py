@@ -64,11 +64,11 @@ def plot_data(output_ids):
             ax = axes[i]
 
             if (cheat_data[0] != 0):
-                ax.plot(time_data, cheat_data, label="cheater")
+                ax.plot(time_data, cheat_data, label="cheater", color='blue')
             if (coop_data[0] != 0):
-                ax.plot(time_data, coop_data, label="cooperator")
+                ax.plot(time_data, coop_data, label="cooperator", color='orange')
             if (threat_data[0] != 0):
-                ax.plot(time_data, threat_data, label="threat")
+                ax.plot(time_data, threat_data, label="threat", color='green')
             ax.set_xlabel("Generation #")
             ax.set_ylabel("Population size")
             ax.set_title(f"Trial {output_id}")
@@ -102,7 +102,7 @@ if compile_process.returncode == 0:
     simulate('Cooperator_Invades_Cheat', 0, 1, 99, .95)
     simulate('Cooperator_Invades_Threat', 99, 1, 0, .95)
     simulate('Cooperator_Invades_Mixed', 50, 1, 49, .95)
-    simulate('Threat_Invades_Cheat', 1, 1, 99, .95)
+    simulate('Threat_Invades_Cheat', 1, 0, 99, .95)
     simulate('Threat_Invades_Cooperator', 1, 99, 0, .95)
     simulate('Threat_Invades_Mixed', 1, 50, 49, .95)
     plot_data(['Cheater_Invades_Cooperator', 'Cheater_Invades_Threat', 'Cheater_Invades_Mixed',
