@@ -26,25 +26,30 @@ public class Hand {
         return c;
     }
 
-    public Card[] passCards() {
+    public Card[] passCards(Round r) {
         Card[] cardsToPass = new Card[3];
         for (int i = 0; i < 3; i++) {
-            Card c = pickCardToPass();
+            Card c = pickCardToPass(r);
             myHand[c.getSuit().getIndex()][c.getRank()] = false;
             cardsToPass[i] = c;
         }
         return cardsToPass;
     }
 
-    private Card[] pickCardToPass() {
+    private Card pickCardToPass(Round r) {
         switch (player.getSpecies()) {
             case THREAT:
-                
-        
+                // Go up hearts
+                for (int i = 2; i <= 9; i++) {
+                    if (myHand[3][i]) {
+                        return new Card(Suit.HEARTS, i);
+                    }       
+                }
+                return myLowestCard(true);
+    
             default:
-                break;
+                return powerCard(r);
         }
-
     }
 
 
@@ -266,7 +271,7 @@ public class Hand {
         } else if (s == Strategy.SHOOT) {
             int highestInSuit = highestRankInSuit(leadingSuit);
             int lowestInSuit = lowestRankInSuit(leadingSuit);
-            int highestNonTaking = highestRankInSuitUnderRank(leadingSuit, highestRank);
+
             // are we out of the suit that was led?
             if (highestInSuit == -1) {
                 Card c = myLowestCard(false); // plays lowest non-heart
@@ -441,7 +446,6 @@ public class Hand {
 
     // returns a card that can guarantee taking the trick, otherwise null
     private Card guaranteedTake(Round r) {
-        int maxCardsAbove = 13;
         for (int i = 14; i > 1; i--) {
             for (int s = 0; s < 4; s++) {
                 if (myHand[s][i]) {

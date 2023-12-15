@@ -96,7 +96,7 @@ public class Round {
         // passes cards first
         Card[][] passCards = new Card[4][3];
         for (int i = 0; i < 4; i++) {
-            passCards[i] = playerHands[i].passCards();
+            passCards[i] = playerHands[i].passCards(this);
         }
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 3; j++) {
