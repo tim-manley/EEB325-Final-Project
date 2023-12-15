@@ -1,11 +1,13 @@
 public class Player implements Comparable<Player> {
     private final Species species;
     private double totalPlacementSum; // used for recording information across games
+    private final double cooperateThreshold;
 
     // creates a new player, with randomly assigned weights
-    public Player(Species s) {
+    public Player(Species s, double t) {
         species = s;
         totalPlacementSum = 0;
+        cooperateThreshold = t;
     }
 
     public void clearSum() {
@@ -34,8 +36,7 @@ public class Player implements Comparable<Player> {
                     return Strategy.SHOOT;
                 return Strategy.AVOID_POINTS; // Abandon shooting if someone takes hearts
             case COOPERATOR:
-                double threshold = 0.2;
-                if (shootingRisk < threshold)
+                if (shootingRisk < cooperateThreshold)
                     return Strategy.AVOID_POINTS; // No need to cooperate if no perceived risk
                 return Strategy.COOPERATE;
             default:
