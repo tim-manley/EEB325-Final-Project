@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import numpy as np
 import subprocess
 
@@ -22,7 +23,7 @@ def plot_data(output_ids):
     num_rows = len(output_ids) + 1 // 3
     num_cols = 3
 
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 10))
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 2.5 * num_rows))
     axes = axes.flatten()
 
     for i, output_id in enumerate(output_ids):
@@ -65,11 +66,20 @@ def plot_data(output_ids):
             ax.plot(time_data, cheat_data, label="cheater")
             ax.plot(time_data, coop_data, label="cooperator")
             ax.plot(time_data, threat_data, label="threat")
-            ax.legend()
-            ax.set_title(f"Plot {output_id}")
+            ax.set_xlabel("Generation #")
+            ax.set_ylabel("Population size")
+            ax.set_title(f"Threshold = {output_id}")
     
     for j in range(len(output_ids), num_rows * num_cols):
         fig.delaxes(axes[j])
+
+    legend_els = [
+        Patch(facecolor='blue', label='cheater'),
+        Patch(facecolor='orange', label='cooperator'),
+        Patch(facecolor='green', label='threat')
+    ]
+
+    fig.legend(handles=legend_els, loc='upper right')
 
     plt.tight_layout()
     plt.show()
