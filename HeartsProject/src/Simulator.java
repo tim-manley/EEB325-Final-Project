@@ -15,8 +15,9 @@ public class Simulator {
     private int currentRound;
 
     public Simulator(int numParticipants, int[] numOfSpecies, int n) {
+        int NUM_GENS = 100;
         currentRound = 0;
-        frequenciesOverTime = new int[3][n];
+        frequenciesOverTime = new int[3][NUM_GENS];
         numPlayers = numParticipants;
         numRounds = n;
         int totalIndividuals = 0;
@@ -33,7 +34,7 @@ public class Simulator {
         for (int i = 0; i < numOfSpecies[2]; i++)
             players.add(new Player(Species.CHEATER));
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < NUM_GENS; i++) {
             recordFrequencies();
             playGeneration();
             stepGeneration();
