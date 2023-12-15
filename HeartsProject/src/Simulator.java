@@ -43,20 +43,20 @@ public class Simulator {
          * for (int i = 0; i < 25; i++)
          * threats.add(new Player(Species.THREAT));
          */
-        ArrayList<Player> wholePop = new ArrayList<>();
+        // ArrayList<Player> wholePop = new ArrayList<>();
         // wholePop.addAll(threats);
         for (Player p : players)
             p.clearSum();
-        wholePop.addAll(players);
+        // wholePop.addAll(players);
 
-        int numGames = wholePop.size() / 4;
+        int numGames = players.size() / 4;
         // System.out.printf("Num games: %d\n", numGames);
         for (int k = 0; k < numRounds; k++) {
-            Collections.shuffle(wholePop);
+            Collections.shuffle(players);
             for (int i = 0; i < numGames; i++) {
                 Player[] thisGame = new Player[4];
                 for (int j = 0; j < 4; j++) {
-                    thisGame[j] = wholePop.get(i * 4 + j);
+                    thisGame[j] = players.get(i * 4 + j);
                 }
                 playGame(thisGame);
             }
