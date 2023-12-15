@@ -41,14 +41,16 @@ public class Simulator {
     }
 
     private void playGeneration() {
-        Collections.shuffle(players);
         int numGames = players.size() / 4;
-        for (int i = 0; i < numGames; i++) {
-            Player[] thisGame = new Player[4];
-            for (int j = 0; j < 4; j++) {
-                thisGame[j] = players.get(i * 4 + j);
+        for (int k = 0; k < numRounds; k++) {
+            Collections.shuffle(players);
+            for (int i = 0; i < numGames; i++) {
+                Player[] thisGame = new Player[4];
+                for (int j = 0; j < 4; j++) {
+                    thisGame[j] = players.get(i * 4 + j);
+                }
+                playGame(thisGame);
             }
-            playGame(thisGame);
         }
         currentRound++;
     }
