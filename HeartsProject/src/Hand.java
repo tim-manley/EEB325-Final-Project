@@ -248,8 +248,10 @@ public class Hand {
             // are we out of the suit that was led?
             if (highestInSuit == -1) {
                 Card c = myLowestCard(false); // plays lowest non-heart
-                if (c != null) return c;
-                else return myLowestCard(true);
+                if (c != null)
+                    return c;
+                else
+                    return myLowestCard(true);
             }
             // for 2nd, 3rd & 4th, we always play low if no hearts, high if hearts
             if (thisTrick.getPointsInTrick() == 0) {
@@ -275,7 +277,8 @@ public class Hand {
                     return powerCard(r);
                 } else { // Else play lowest non-heart/QS to save high cards
                     Card c = myLowestCard(false);
-                    if (c != null) return c;
+                    if (c != null)
+                        return c;
                     return myLowestCard(true);
                 }
             }
@@ -405,14 +408,12 @@ public class Hand {
             if (myHand[2][14])
                 return new Card(Suit.SPADES, 14);
         }
-        if (myHand[3][14])
-            return new Card(Suit.HEARTS, 14);
-        if (myHand[3][13])
-            return new Card(Suit.HEARTS, 13);
-        if (myHand[3][12])
-            return new Card(Suit.HEARTS, 12);
-        if (myHand[3][11])
-            return new Card(Suit.HEARTS, 11);
+        // Go down hearts
+        for (int i = 14; i >= 2; i--) {
+            if (myHand[3][i]) {
+                return new Card(Suit.HEARTS, i);
+            }
+        }
         return myHighestCard(true);
     }
 
@@ -446,7 +447,8 @@ public class Hand {
 
     // deals the player a card
     public void giveCard(Card c) {
-        if (c.getSuit() == Suit.CLUBS && c.getRank() == 2) isFirstLeader = true;
+        if (c.getSuit() == Suit.CLUBS && c.getRank() == 2)
+            isFirstLeader = true;
         myHand[c.getSuit().getIndex()][c.getRank()] = true;
     }
 

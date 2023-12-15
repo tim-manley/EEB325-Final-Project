@@ -4,8 +4,8 @@ import subprocess
 
 java_file = "Simulator.java"
 games_per_gen = 50
-init_threat = 50
-init_coop = 49
+init_threat = 99
+init_coop = 0
 init_cheat = 1
 arguments = [str(games_per_gen), str(init_threat), str(init_coop), str(init_cheat)]
 
