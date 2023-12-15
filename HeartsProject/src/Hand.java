@@ -31,6 +31,8 @@ public class Hand {
         for (int i = 0; i < 3; i++) {
             Card c = pickCardToPass(r);
             myHand[c.getSuit().getIndex()][c.getRank()] = false;
+            if (c.getSuit() == Suit.CLUBS && c.getRank() == 2)
+                isFirstLeader = false;
             cardsToPass[i] = c;
         }
         return cardsToPass;
@@ -469,6 +471,9 @@ public class Hand {
             default:
                 return Suit.HEARTS;
         }
+    }
+    public boolean[][] getMyHand() {
+        return myHand;
     }
 
     // deals the player a card

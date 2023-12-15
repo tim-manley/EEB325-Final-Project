@@ -8,6 +8,10 @@ public class Player implements Comparable<Player> {
         totalPlacementSum = 0;
     }
 
+    public void clearSum() {
+        totalPlacementSum = 0;
+    }
+
     public void recordPlacement(double s) {
         totalPlacementSum += s;
     }
