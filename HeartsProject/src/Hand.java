@@ -26,6 +26,28 @@ public class Hand {
         return c;
     }
 
+    public Card[] passCards() {
+        Card[] cardsToPass = new Card[3];
+        for (int i = 0; i < 3; i++) {
+            Card c = pickCardToPass();
+            myHand[c.getSuit().getIndex()][c.getRank()] = false;
+            cardsToPass[i] = c;
+        }
+        return cardsToPass;
+    }
+
+    private Card[] pickCardToPass() {
+        switch (player.getSpecies()) {
+            case THREAT:
+                
+        
+            default:
+                break;
+        }
+
+    }
+
+
     // returns a number corresponding to a player's perception of risk, based on
     // remaining points in hand
     private double perceivedRiskOfShooting(Round r, Trick thisTrick) {

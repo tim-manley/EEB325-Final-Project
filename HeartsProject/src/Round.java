@@ -93,6 +93,16 @@ public class Round {
     }
 
     public void playRound() {
+        // passes cards first
+        Card[][] passCards = new Card[4][3];
+        for (int i = 0; i < 4; i++) {
+            passCards[i] = playerHands[i].passCards();
+        }
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                playerHands[i].giveCard(passCards[(i+1)%4][j]);
+            }
+        }
         while (continueRound()) playTrick();
     }
 
