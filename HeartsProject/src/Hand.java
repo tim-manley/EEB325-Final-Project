@@ -409,7 +409,7 @@ public class Hand {
                 return new Card(Suit.SPADES, 14);
         }
         // Go down hearts
-        for (int i = 14; i >= 2; i--) {
+        for (int i = 14; i >= 6; i--) {
             if (myHand[3][i]) {
                 return new Card(Suit.HEARTS, i);
             }
