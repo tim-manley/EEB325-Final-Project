@@ -45,15 +45,14 @@ public class Hand {
                 for (int i = 2; i <= 9; i++) {
                     if (myHand[3][i]) {
                         return new Card(Suit.HEARTS, i);
-                    }       
+                    }
                 }
                 return myLowestCard(true);
-    
+
             default:
                 return powerCard(r);
         }
     }
-
 
     // returns a number corresponding to a player's perception of risk, based on
     // remaining points in hand
@@ -223,8 +222,10 @@ public class Hand {
                 // END CORNER CASE
             } else if (s == Strategy.SHOOT) {
                 Card c = guaranteedTake(r);
-                if (c != null)
+                if (c != null) {
+                    // System.out.println("Guaranteed take from shooter");
                     return c;
+                }
                 // no guaranteed card to take, so play some high card
                 c = myHighestCard(heartsBroken);
                 if (c != null)
@@ -420,9 +421,9 @@ public class Hand {
         boolean[][] playedCards = r.getPlayedCards();
         for (int i = rank + 1; i < 15; i++) {
             if (!playedCards[suitIndex][i])
-                return false;
+                return true;
         }
-        return true;
+        return false;
     }
 
     // QS -> AS -> KS -> AH -> KH -> QH -> JH -> highest rank card
@@ -472,6 +473,7 @@ public class Hand {
                 return Suit.HEARTS;
         }
     }
+
     public boolean[][] getMyHand() {
         return myHand;
     }

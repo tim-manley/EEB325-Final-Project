@@ -14,7 +14,7 @@ public class Simulator {
         int NUM_GENS = 100;
         currentRound = 0;
         frequenciesOverTime = new int[3][NUM_GENS];
-        numPlayers = numParticipants - numOfSpecies[0];
+        numPlayers = numOfSpecies[0] + numOfSpecies[1] + numOfSpecies[2];
         numRounds = n;
         int totalIndividuals = 0;
         for (int i : numOfSpecies)
@@ -23,8 +23,8 @@ public class Simulator {
 
         players = new ArrayList<Player>();
 
-        // for (int i = 0; i < numOfSpecies[0]; i++)
-        //     players.add(new Player(Species.THREAT));
+        for (int i = 0; i < numOfSpecies[0]; i++)
+            players.add(new Player(Species.THREAT));
         for (int i = 0; i < numOfSpecies[1]; i++)
             players.add(new Player(Species.COOPERATOR));
         for (int i = 0; i < numOfSpecies[2]; i++)
@@ -38,15 +38,19 @@ public class Simulator {
     }
 
     private void playGeneration() {
-        ArrayList<Player> threats = new ArrayList<>();      
-        for (int i = 0; i < 25; i++)
-            threats.add(new Player(Species.THREAT));
+        /*
+         * ArrayList<Player> threats = new ArrayList<>();
+         * for (int i = 0; i < 25; i++)
+         * threats.add(new Player(Species.THREAT));
+         */
         ArrayList<Player> wholePop = new ArrayList<>();
-        wholePop.addAll(threats);
-        for (Player p : players) p.clearSum();
+        // wholePop.addAll(threats);
+        for (Player p : players)
+            p.clearSum();
         wholePop.addAll(players);
 
-        int numGames = wholePop.size() / 4;        
+        int numGames = wholePop.size() / 4;
+        // System.out.printf("Num games: %d\n", numGames);
         for (int k = 0; k < numRounds; k++) {
             Collections.shuffle(wholePop);
             for (int i = 0; i < numGames; i++) {
@@ -67,7 +71,7 @@ public class Simulator {
         Collections.sort(players);
         // overwrites these players with new players
         for (int i = 0; i < numPlayers / 4; i++)
-            players.set(i + 50, new Player(players.get(i).getSpecies()));
+            players.set(i + (3 * numPlayers / 4), new Player(players.get(i).getSpecies()));
     }
 
     // records the current population frequency data
@@ -81,7 +85,7 @@ public class Simulator {
             else if (s == Species.CHEATER)
                 frequenciesOverTime[2][currentRound] = frequenciesOverTime[2][currentRound] + 1;
         }
-        frequenciesOverTime[0][currentRound] = 25;
+        // frequenciesOverTime[0][currentRound] = 25;
     }
 
     private void playGame(Player[] players) {
@@ -92,6 +96,10 @@ public class Simulator {
             int[] results = r.getPointsTaken();
             for (int i = 0; i < 4; i++)
                 scores[i] += results[i];
+        }
+        for (int i = 0; i < 4; i++) {
+            // System.out.printf("Player %d strategy: %s\nPlayer score: %d\n", i,
+            // players[i].getSpecies(), scores[i]);
         }
         tabulate(scores, players);
     }

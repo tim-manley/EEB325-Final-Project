@@ -4,9 +4,9 @@ import subprocess
 
 java_file = "Simulator.java"
 games_per_gen = 10
-init_threat = 25
-init_coop = 70
-init_cheat = 5
+init_threat = 1
+init_coop = 0
+init_cheat = 100
 arguments = [str(games_per_gen), str(init_threat), str(init_coop), str(init_cheat)]
 
 compile_process = subprocess.run(['javac', java_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)

@@ -12,7 +12,6 @@ public class Round {
     private int leader;
     private boolean heartsBroken;
 
-
     // constructor
     public Round(Player[] players) {
         playedCards = new boolean[4][15]; // one extra entry per row, for 1-based indexing :)
@@ -20,7 +19,8 @@ public class Round {
         tricksLeft = 13;
         // instantiates four player hands [TBD]
         playerHands = new Hand[4];
-        for (int i = 0; i < 4; i++) playerHands[i] = new Hand(players[i], i);
+        for (int i = 0; i < 4; i++)
+            playerHands[i] = new Hand(players[i], i);
         pointsTaken = new int[4];
         leader = -1;
 
@@ -35,24 +35,30 @@ public class Round {
         for (int i = 0; i < 52; i++) {
             playerHands[i % 4].giveCard(deck.get(i));
         }
-        // at this point, optionally a passing phase -- we are omitting for now, for simplicity
+        // at this point, optionally a passing phase -- we are omitting for now, for
+        // simplicity
     }
 
     public void playTrick() {
+        // System.out.println("Playing a trick!");
         // determines which player leads the first trick of a hand
         if (leader == -1) {
             for (int i = 0; i < 4; i++) {
-                if (playerHands[i].isFirstLeader()) leader = i;   // isFirstLeader is set when 2 of Clubs is dealt
+                if (playerHands[i].isFirstLeader())
+                    leader = i; // isFirstLeader is set when 2 of Clubs is dealt
             }
         }
         Trick thisTrick = new Trick(leader);
 
         // each remaining player plays their turn
         for (int i = 0; i < 4; i++) {
-            // maybe add more to evaluate on, but in passing the Round we should be able to use any
+            // maybe add more to evaluate on, but in passing the Round we should be able to
+            // use any
             // getter method to retrieve other state info
             int absolutePlayerIndex = (leader + i) % 4;
             Card c = playerHands[absolutePlayerIndex].playCard(this, thisTrick, i);
+            // System.out.printf("Player %d plays %d of %s\n", absolutePlayerIndex,
+            // c.getRank(), c.getSuit());
             thisTrick.playCard(c, i);
             playedCards[c.getSuit().getIndex()][c.getRank()] = true;
         }
@@ -61,7 +67,8 @@ public class Round {
         int total = thisTrick.getPointsInTrick();
         int taker = thisTrick.getTakerIndex();
         pointsTaken[taker] += total; // Does this += notation work with arrays? I'm rusty, I hope so
-        if (total > 0) heartsBroken = true;
+        if (total > 0)
+            heartsBroken = true;
         leader = taker;
         tricksLeft--;
     }
@@ -72,7 +79,8 @@ public class Round {
 
     public int getTotalPointsTaken() {
         int total = 0;
-        for (int i = 0; i < 4; i++) total += pointsTaken[i];
+        for (int i = 0; i < 4; i++)
+            total += pointsTaken[i];
         return total;
     }
 
@@ -93,6 +101,7 @@ public class Round {
     }
 
     public void playRound() {
+        // System.out.println("NEW ROUND!!!");
         // passes cards first
         Card[][] passCards = new Card[4][3];
         for (int i = 0; i < 4; i++) {
@@ -100,10 +109,25 @@ public class Round {
         }
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 3; j++) {
-                playerHands[i].giveCard(passCards[(i+1)%4][j]);
+                playerHands[i].giveCard(passCards[(i + 1) % 4][j]);
             }
         }
-        while (continueRound()) playTrick();
+        while (continueRound())
+            playTrick();
+
+        // Check if anyone shot the moon successfully
+        for (int i = 0; i < 4; i++) {
+            if (pointsTaken[i] == 26) {
+                // System.out.println("MOOOOOOOOOOOOOOON");
+                pointsTaken[i] -= 26;
+                // System.out.println(pointsTaken[i]);
+                for (int j = 0; j < 4; j++) {
+                    if (j == i)
+                        continue;
+                    pointsTaken[j] += 26;
+                }
+            }
+        }
     }
 
     public boolean continueRound() {

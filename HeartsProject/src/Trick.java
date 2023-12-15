@@ -17,10 +17,13 @@ public class Trick {
         cards[relativePlayerIndex] = c;
 
         // determines the current taking card and associated player
-        if (relativePlayerIndex == 0) takingCard = c;
+        if (relativePlayerIndex == 0)
+            takingCard = c;
         else if (c.compareTo(takingCard) > 0) {
             takingCard = c;
             takerIndex = (leaderIndex + relativePlayerIndex) % 4;
+            // System.out.printf("Player %d currently winning with %d of %s", takerIndex,
+            // c.getRank(), c.getSuit());
         }
 
         // adds points to tally of points in trick
@@ -35,8 +38,8 @@ public class Trick {
         return leaderIndex;
     }
 
-    public boolean hasPlayerGone(int absolutePlayerIndex){
-        return cards[Math.floorMod(absolutePlayerIndex-leaderIndex, 4)] != null;
+    public boolean hasPlayerGone(int absolutePlayerIndex) {
+        return cards[Math.floorMod(absolutePlayerIndex - leaderIndex, 4)] != null;
     }
 
     public int getPointsInTrick() {
