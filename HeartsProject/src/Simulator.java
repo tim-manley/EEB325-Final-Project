@@ -13,7 +13,7 @@ public class Simulator {
 
     public Simulator(int numParticipants, int[] numOfSpecies, int n, double c) {
         cooperateThreshold = c;
-        int NUM_GENS = 200;
+        int NUM_GENS = 300;
         currentRound = 0;
         frequenciesOverTime = new int[3][NUM_GENS];
         numPlayers = numOfSpecies[0] + numOfSpecies[1] + numOfSpecies[2];
@@ -40,6 +40,11 @@ public class Simulator {
     }
 
     private void playGeneration() {
+        if (frequenciesOverTime[0][currentRound] == 100 || frequenciesOverTime[1][currentRound] == 100 || frequenciesOverTime[2][currentRound] == 100) {
+            currentRound++;
+            return;
+        }
+
         /*
          * ArrayList<Player> threats = new ArrayList<>();
          * for (int i = 0; i < 25; i++)

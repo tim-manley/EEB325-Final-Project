@@ -433,10 +433,10 @@ public class Hand {
         if (!playedCards[2][12]) {
             if (myHand[2][12])
                 return new Card(Suit.SPADES, 12);
-            if (myHand[2][13])
-                return new Card(Suit.SPADES, 13);
             if (myHand[2][14])
                 return new Card(Suit.SPADES, 14);
+            if (myHand[2][13])
+                return new Card(Suit.SPADES, 13);
         }
         // Go down hearts
         for (int i = 14; i >= 6; i--) {

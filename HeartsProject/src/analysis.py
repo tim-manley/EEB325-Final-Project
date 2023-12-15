@@ -9,7 +9,7 @@ compile_process = subprocess.run(['javac', java_file], stdout=subprocess.PIPE, s
 
 
 def simulate(output_id, threat, coop, cheat, coop_threshold):
-    games_per_gen = 10
+    games_per_gen = 20
     arguments = [str(games_per_gen), str(threat), str(coop), str(cheat), str(coop_threshold)]
     output_str = f"output_{output_id}.txt"
     with open(output_str, 'w') as output_file:
@@ -20,8 +20,8 @@ def simulate(output_id, threat, coop, cheat, coop_threshold):
 
 def plot_data(output_ids):
 
-    num_rows = len(output_ids) + 1 // 3
-    num_cols = 3
+    num_rows = 3
+    num_cols = 3    
 
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 2.5 * num_rows))
     axes = axes.flatten()
@@ -68,7 +68,7 @@ def plot_data(output_ids):
             ax.plot(time_data, threat_data, label="threat")
             ax.set_xlabel("Generation #")
             ax.set_ylabel("Population size")
-            ax.set_title(f"Threshold = {output_id}")
+            ax.set_title(f"Trial {output_id}")
     
     for j in range(len(output_ids), num_rows * num_cols):
         fig.delaxes(axes[j])
@@ -88,10 +88,24 @@ def plot_data(output_ids):
 # Check if compilation was successful
 if compile_process.returncode == 0:
     # Run the compiled Java program and redirect output to 'output.txt'
-    for i in range(1, 10):
-        simulate(i / 10.0, 33, 33, 34, i / 10.0)
+    # for i in range(9):
+    #     simulate(i, 33, 33, 34, .95)
 
-    plot_data([i / 10.0 for i in range(1, 10)])
+    # plot_data([i for i in range(9)])
+
+    simulate('Cheater_Invades_Cooperator', 0, 99, 1, .95)
+    simulate('Cheater_Invades_Threat', 99, 0, 1, .95)
+    simulate('Cheater_Invades_Mixed', 50, 49, 1, .95)
+    simulate('Cooperator_Invades_Cheat', 0, 1, 99, .95)
+    simulate('Cooperator_Invades_Threat', 99, 1, 0, .95)
+    simulate('Cooperator_Invades_Mixed', 50, 1, 49, .95)
+    simulate('Threat_Invades_Cheat', 1, 1, 99, .95)
+    simulate('Threat_Invades_Cooperator', 1, 99, 0, .95)
+    simulate('Threat_Invades_Mixed', 1, 50, 49, .95)
+    plot_data(['Cheater_Invades_Cooperator', 'Cheater_Invades_Threat', 'Cheater_Invades_Mixed',
+              'Cooperator_Invades_Cheat','Cooperator_Invades_Threat', 'Cooperator_Invades_Mixed',
+                  'Threat_Invades_Cheat', 'Threat_Invades_Cooperator', 'Threat_Invades_Mixed'])
+
 else:
     # If compilation fails, write the error to 'output.txt'
     with open('output.txt', 'w') as f:
