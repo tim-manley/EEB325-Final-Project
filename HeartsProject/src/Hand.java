@@ -177,10 +177,6 @@ public class Hand {
                             return new Card(Suit.HEARTS, highestHeartRank);
                         }
                     }
-                    // plays a low heart to bait out high hearts/allow someone else to take
-                    int lowestHeartRank = lowestRankInSuit(Suit.HEARTS);
-                    if (lowestHeartRank != -1)
-                        return new Card(Suit.HEARTS, lowestHeartRank);
                 }
                 // if we've gotten to here, either hearts aren't broken or we have no hearts
                 // plays lowest card because there usually isn't a clear direction as the leader
@@ -253,8 +249,10 @@ public class Hand {
             // are we out of the suit that was led?
             if (highestInSuit == -1) {
                 Card c = myLowestCard(false); // plays lowest non-heart
-                if (c != null) return c;
-                else return myLowestCard(true);
+                if (c != null)
+                    return c;
+                else
+                    return myLowestCard(true);
             }
             // for 2nd, 3rd & 4th, we always play low if no hearts, high if hearts
             if (thisTrick.getPointsInTrick() == 0) {
@@ -280,7 +278,10 @@ public class Hand {
                 if (perceivedRiskOfShooting(r, thisTrick) == 0) {
                     return powerCard(r);
                 } else { // Else play lowest non-heart/QS to save high cards
-                    return myLowestCard(false);
+                    Card c = myLowestCard(false);
+                    if (c != null)
+                        return c;
+                    return myLowestCard(true);
                 }
             }
             int lowestInSuit = lowestRankInSuit(leadingSuit);
@@ -293,7 +294,7 @@ public class Hand {
             else {
                 // Check if our highest card in suit is higher than current winning card
                 Card winningCard = thisTrick.getTakingCard();
-                Card ourHighestCard = new Card(leadingSuit, highestRankInSuit(leadingSuit));
+                Card ourHighestCard = new Card(leadingSuit, highestInSuit);
                 if (ourHighestCard.compareTo(winningCard) > 0) {
                     return ourHighestCard;
                 } else {
@@ -450,7 +451,8 @@ public class Hand {
 
     // deals the player a card
     public void giveCard(Card c) {
-        if (c.getSuit() == Suit.CLUBS && c.getRank() == 2) isFirstLeader = true;
+        if (c.getSuit() == Suit.CLUBS && c.getRank() == 2)
+            isFirstLeader = true;
         myHand[c.getSuit().getIndex()][c.getRank()] = true;
     }
 
